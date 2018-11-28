@@ -12,7 +12,7 @@ global loop
 InfoArr = []
 IsRecording = False
 IsPlaying = False
-loop = 10
+loop = eval(input("循环次数"))
   
 def OnMouseEvent(event):
 ##  print('MessageName:',event.MessageName)
@@ -69,7 +69,7 @@ def SpecialKeyEvents(event):
       IsRecording = True 
       startrecord()
 
-  if  "F12" == event.Key:
+  if  "F12" == event.Key and IsPlaying == False:    
       Play()
       
 def SpecialMouseEvents(event):
@@ -94,6 +94,9 @@ def Play():
     global IsPlaying
     global loop
     locloop = loop
+
+    hm.UnhookMouse()
+    hm.UnhookKeyboard() 
     
     if IsPlaying == True:
       return
@@ -101,15 +104,18 @@ def Play():
         IsPlaying = True
     t0 = InfoArr[0][2]
     for i in InfoArr:
-      i[2] = i[2] - t0
-      
+      i[2] = i[2] - t0 + 1000
+    print("playing")
+    
 #循环loop次数播放
-    for i in range(loop - 1):
+    for i in range(loop - 1):    
       for i in InfoArr:
         if i[0] == 'mouse left down':
           time.sleep(i[2]/1000)
+          old_x,old_y = win32api.GetCursorPos()
           x , y = i[1]
           mouse_left_click(x, y, 1)
+          win32api.SetCursorPos((old_x,old_y))
         if i[0] == 'key down':
           time.sleep(i[2]/1000)
           win32api.keybd_event(i[1], 0, 0, 0)
@@ -123,7 +129,6 @@ def EndPlay():
         IsPlaying = False
     print("EndPlay")
     
-
 ##鼠标移动和鼠标左键输出
 def mouse_move(new_x, new_y):
     if new_y is not None and new_x is not None:
@@ -145,18 +150,17 @@ def mouse_left_click(new_x=None, new_y=None, times=1):
         times -= 1
 ##分割线
     
-def main():
-    # create the hook mananger
-    hm = PyHook3.HookManager()
-    # register two callbacks
-    hm.MouseAllButtonsDown = OnMouseEvent
-    hm.KeyDown = OnKeyboardEvent
 
-    # hook into the mouse and keyboard events
-    hm.HookMouse()
-    hm.HookKeyboard()
-    if __name__ == '__main__':
-      import pythoncom
-      pythoncom.PumpMessages()
+# create the hook mananger
+hm = PyHook3.HookManager()
+# register two callbacks
+hm.MouseAllButtonsDown = OnMouseEvent
+hm.KeyDown = OnKeyboardEvent
+
+# hook into the mouse and keyboard events
+hm.HookMouse()
+hm.HookKeyboard()
+if __name__ == '__main__':
+  import pythoncom
+  pythoncom.PumpMessages()
       
-main()
